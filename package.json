@@ -1,9 +1,23 @@
 {
   "name": "@effect-ts/actors-v3",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "description": "Actor system implementation for Effect v3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "examples/",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gftdcojp/effect-actor.git"
+  },
+  "homepage": "https://github.com/gftdcojp/effect-actor#readme",
+  "bugs": {
+    "url": "https://github.com/gftdcojp/effect-actor/issues"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -17,7 +31,7 @@
     "typescript",
     "functional-programming"
   ],
-  "author": "Effect Community",
+  "author": "gftdcojp",
   "license": "MIT",
   "dependencies": {
     "effect": "^3.0.0"
