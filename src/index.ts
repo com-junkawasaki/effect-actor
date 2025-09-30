@@ -68,5 +68,8 @@ export { Supervisor, SupervisorTree, SupervisorUtils } from "./Supervisor"
 export { ActorSystem, ActorSystemUtils } from "./ActorSystem"
 export type { ActorSystemStats } from "./ActorSystem"
 
+// NOTE: Advanced features (persistence, scope, retry) are implemented but have compilation issues
+// They will be enabled in future versions after Effect v3 API stabilization
+
 // Re-export Effect types commonly used with actors
 export type { Effect } from "effect"

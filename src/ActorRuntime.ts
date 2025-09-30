@@ -27,6 +27,10 @@ import type { ActorBehavior, ActorConfig, ActorContext } from "./types"
 import { ActorStatus } from "./types"
 import type { ActorRef } from "./ActorRef"
 import type { Mailbox } from "./Mailbox"
+// import type { PersistenceManager } from "./Persistence"
+// import { ResourceRegistry } from "./Scope"
+// import type { ActorScopeContext } from "./Scope"
+// import type { RetryConfig, RateLimitConfig } from "./Retry"
 
 /**
  * Actor Runtime - Manages actor execution lifecycle

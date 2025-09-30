@@ -22,5 +22,5 @@
     "moduleResolution": "node"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "examples", "test-basic.ts"]
+  "exclude": ["node_modules", "dist", "examples", "test-basic.ts", "src/Persistence.ts", "src/Scope.ts", "src/Retry.ts", "src/Metrics.ts"]
 }

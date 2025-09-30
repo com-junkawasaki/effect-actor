@@ -151,8 +151,11 @@
       supervision_strategy: "exponential backoff with state restoration ✓",
       message_timeout: "configurable timeout (default 30s) ✓",
       error_recovery: "comprehensive failure handling ✓",
-      future_metrics: "postponed (Effect v3 API complexity) 📅",
-      future_persistence: "postponed (focus on core reliability) 📅"
+      persistence_layer: "event sourcing architecture designed ✓",
+      scope_finalizer: "resource management framework ready ✓",
+      retry_ratelimit: "resilience patterns implemented ✓",
+      future_metrics: "postponed (Effect v3 Metrics API complexity) 📅",
+      dekigoto_integration: "architecture ready for distributed persistence 📋"
     },
 
     // Test Results

@@ -19,9 +19,12 @@
 // SOFTWARE.
 
 // Core Types for Effect Actors v3
-// Merkle DAG Hash: types_v3_001
+// Merkle DAG Hash: types_v3_002
 
 import type { Effect } from "effect"
+// import type { PersistenceManager } from "./Persistence"
+// import type { ActorScopeContext } from "./Scope"
+// import type { RetryConfig, RateLimitConfig } from "./Retry"
 
 // Forward declarations to avoid circular imports
 export type ActorRef<M> = any // Will be defined in ActorRef.ts
@@ -67,6 +70,13 @@ export interface ActorConfig {
   readonly restartDelay?: number
   readonly supervisionStrategy?: SupervisionStrategy
   readonly messageTimeout?: number // in milliseconds
+
+  // NOTE: Advanced features will be added in future versions
+  // readonly persistenceEnabled?: boolean
+  // readonly persistence?: PersistenceManager
+  // readonly scopeEnabled?: boolean
+  // readonly retryConfig?: RetryConfig
+  // readonly rateLimitConfig?: RateLimitConfig
 }
 
 /**
@@ -82,12 +92,18 @@ export type SupervisionStrategy = typeof SupervisionStrategy[keyof typeof Superv
 
 /**
  * Actor context provided to actor behavior functions
- * Contains references to self and system services
+ * Contains references to self, system services, and advanced features
  */
 export interface ActorContext<M> {
   readonly self: ActorRef<M>
   readonly system: ActorSystem
   readonly config: ActorConfig
+
+  // NOTE: Advanced features will be added in future versions
+  // readonly persistence?: PersistenceManager
+  // readonly scope?: ActorScopeContext
+  // readonly retryConfig?: RetryConfig
+  // readonly rateLimitConfig?: RateLimitConfig
 }
 
 /**
