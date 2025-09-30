@@ -71,4 +71,4 @@ export type { ActorSystemStats } from "./ActorSystem"
 // Re-export Effect types commonly used with actors
 export type { Effect } from "effect"
 
-// Note: Metrics support is planned for future implementation
+// Note: Metrics and persistence support are planned for future implementation
