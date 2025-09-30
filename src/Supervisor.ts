@@ -2,7 +2,7 @@
 // Merkle DAG Hash: supervision_v3_001
 // Dependencies: ["actor_ref", "actor_runtime"]
 
-import { Effect, Ref } from "effect"
+import { Effect, Ref, Schedule } from "effect"
 import { SupervisionStrategy } from "./types"
 import type { ActorRef } from "./ActorRef"
 import type { ActorRuntime } from "./ActorRuntime"

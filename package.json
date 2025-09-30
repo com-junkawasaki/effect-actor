@@ -18,7 +18,7 @@
     "functional-programming"
   ],
   "author": "Effect Community",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "effect": "^3.0.0"
   },
