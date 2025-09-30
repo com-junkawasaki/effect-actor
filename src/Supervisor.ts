@@ -3,9 +3,9 @@
 // Dependencies: ["actor_ref", "actor_runtime"]
 
 import { Effect, Ref } from "effect"
-import { SupervisionStrategy } from "./types.ts"
-import type { ActorRef } from "./ActorRef.ts"
-import type { ActorRuntime } from "./ActorRuntime.ts"
+import { SupervisionStrategy } from "./types"
+import type { ActorRef } from "./ActorRef"
+import type { ActorRuntime } from "./ActorRuntime"
 
 /**
  * Supervisor - Manages actor failure recovery
@@ -30,7 +30,7 @@ export class Supervisor<M> {
   handleFailure(
     error: Error,
     runtime: ActorRuntime<unknown, M>
-  ): Effect.Effect<void, Error, never> {
+  ): Effect.Effect<void, never, never> {
     const self = this
     return Effect.gen(function* () {
       const currentRestarts = yield* Ref.get(self.restartCountRef)
@@ -57,7 +57,9 @@ export class Supervisor<M> {
         default:
           yield* self.stopActor(runtime)
       }
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
@@ -65,24 +67,27 @@ export class Supervisor<M> {
    */
   private restartActor(
     runtime: ActorRuntime<unknown, M>
-  ): Effect.Effect<void, Error, never> {
+  ): Effect.Effect<void, never, never> {
+    const self = this
     return Effect.gen(function* () {
       // Stop current runtime
       yield* runtime.stop()
 
       // Wait for restart delay
-      if (this.restartDelay > 0) {
-        yield* Effect.sleep(this.restartDelay)
+      if (self.restartDelay > 0) {
+        yield* Effect.sleep(self.restartDelay)
       }
 
       // Get current runtime and restart it
-      const currentRuntime = yield* Ref.get(this.runtimeRef)
+      const currentRuntime = yield* Ref.get(self.runtimeRef)
       if (currentRuntime) {
         // TODO: Need to store initial state and behavior for restart
         // For now, just log that restart would happen
-        yield* Effect.log(`Restarting actor ${this.supervisedActor.id}`)
+        yield* Effect.log(`Restarting actor ${self.supervisedActor.id}`)
       }
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
@@ -90,25 +95,32 @@ export class Supervisor<M> {
    */
   private stopActor(
     runtime: ActorRuntime<unknown, M>
-  ): Effect.Effect<void, Error, never> {
+  ): Effect.Effect<void, never, never> {
+    const self = this
     return Effect.gen(function* () {
       yield* runtime.stop()
-      yield* Effect.log(`Stopped actor ${this.supervisedActor.id} due to failure`)
-    })
+      yield* Effect.log(`Stopped actor ${self.supervisedActor.id} due to failure`)
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
    * Register a runtime with this supervisor
    */
-  registerRuntime(runtime: ActorRuntime<unknown, M>): Effect.Effect<void, Error, never> {
-    return Ref.set(this.runtimeRef, runtime)
+  registerRuntime(runtime: ActorRuntime<unknown, M>): Effect.Effect<void, never, never> {
+    return Ref.set(this.runtimeRef, runtime).pipe(
+      Effect.orDie
+    )
   }
 
   /**
    * Get current restart count
    */
-  getRestartCount(): Effect.Effect<number, Error, never> {
-    return Ref.get(this.restartCountRef)
+  getRestartCount(): Effect.Effect<number, never, never> {
+    return Ref.get(this.restartCountRef).pipe(
+      Effect.orDie
+    )
   }
 }
 
@@ -188,10 +200,11 @@ export class SupervisorTree<M> {
   handleFailure(
     error: Error,
     runtime: ActorRuntime<unknown, M>
-  ): Effect.Effect<void, Error, never> {
+  ): Effect.Effect<void, never, never> {
+    const self = this
     return Effect.gen(function* () {
-      const children = yield* Ref.get(this.childrenRef)
-      const supervisor = children.find(child =>
+      const children = yield* Ref.get(self.childrenRef)
+      const supervisor = children.find((child: Supervisor<M>) =>
         child.supervisedActor.equals(runtime.ref)
       )
 
@@ -200,15 +213,17 @@ export class SupervisorTree<M> {
       } else {
         // No supervisor found, escalate to root
         yield* Effect.log(`No supervisor found for actor ${runtime.ref.id}, escalating failure`)
-        yield* Effect.fail(error)
+        console.error("Supervisor escalation:", error)
       }
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
    * Get all child supervisors
    */
-  getChildren(): Effect.Effect<Supervisor<M>[], Error, never> {
+  getChildren(): Effect.Effect<Supervisor<M>[], never, never> {
     return Ref.get(this.childrenRef)
   }
 }

@@ -17,10 +17,10 @@
 // Dependencies: ["fiber", "supervisor"]
 
 import { Effect, Fiber, Ref } from "effect"
-import type { ActorBehavior, ActorConfig, ActorContext } from "./types.ts"
-import { ActorStatus } from "./types.ts"
-import type { ActorRef } from "./ActorRef.ts"
-import type { Mailbox } from "./Mailbox.ts"
+import type { ActorBehavior, ActorConfig, ActorContext } from "./types"
+import { ActorStatus } from "./types"
+import type { ActorRef } from "./ActorRef"
+import type { Mailbox } from "./Mailbox"
 
 /**
  * Actor Runtime - Manages actor execution lifecycle
@@ -45,7 +45,7 @@ export class ActorRuntime<S, M> {
   start(
     initialState: S,
     behavior: ActorBehavior<S, M>
-  ): Effect.Effect<void, Error, never> {
+  ): Effect.Effect<void, never, never> {
     const self = this
     return Effect.gen(function* () {
       // Update status to Starting
@@ -77,11 +77,12 @@ export class ActorRuntime<S, M> {
           yield* Ref.set(self.stateRef, newState)
         }).pipe(
           // Handle errors in message processing
-          Effect.catchAll(error =>
+          Effect.catchAll((error: Error) =>
             Effect.gen(function* () {
               yield* Ref.set(self.statusRef, ActorStatus.Failed)
               // TODO: Trigger supervision strategy
-              return yield* Effect.fail(error)
+              console.error("Actor error:", error)
+              return undefined as never
             })
           )
         )
@@ -95,7 +96,9 @@ export class ActorRuntime<S, M> {
 
       // Update status to Running
       yield* Ref.set(self.statusRef, ActorStatus.Running)
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
@@ -120,7 +123,9 @@ export class ActorRuntime<S, M> {
 
       // Update status to Stopped
       yield* Ref.set(self.statusRef, ActorStatus.Stopped)
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**

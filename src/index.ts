@@ -20,7 +20,7 @@ export {
   ActorId,
   ActorStatus,
   SupervisionStrategy
-} from "./types.ts"
+} from "./types"
 export type {
   Envelope,
   ActorConfig,
@@ -28,10 +28,10 @@ export type {
   ActorBehavior,
   Message,
   TaggedMessage
-} from "./types.ts"
+} from "./types"
 
 // Actor Reference
-export { ActorRef, ActorRefUtils } from "./ActorRef.ts"
+export { ActorRef, ActorRefUtils } from "./ActorRef"
 
 // Message Protocol
 export {
@@ -40,27 +40,27 @@ export {
   SystemMessageTag,
   SystemMessages,
   jsonMessageSerializer
-} from "./Message.ts"
+} from "./Message"
 export type {
   MessageMatcher,
   StopMessage,
   RestartMessage,
   GetStatusMessage,
   MessageSerializer
-} from "./Message.ts"
+} from "./Message"
 
 // Mailbox System
-export { Mailbox, MailboxUtils } from "./Mailbox.ts"
+export { Mailbox, MailboxUtils } from "./Mailbox"
 
 // Actor Runtime
-export { ActorRuntime, ActorRuntimeUtils } from "./ActorRuntime.ts"
+export { ActorRuntime, ActorRuntimeUtils } from "./ActorRuntime"
 
 // Supervision System
-export { Supervisor, SupervisorTree, SupervisorUtils } from "./Supervisor.ts"
+export { Supervisor, SupervisorTree, SupervisorUtils } from "./Supervisor"
 
 // Actor System
-export { ActorSystem, ActorSystemUtils } from "./ActorSystem.ts"
-export type { ActorSystemStats } from "./ActorSystem.ts"
+export { ActorSystem, ActorSystemUtils } from "./ActorSystem"
+export type { ActorSystemStats } from "./ActorSystem"
 
 // Re-export Effect types commonly used with actors
 export type { Effect } from "effect"

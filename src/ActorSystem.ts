@@ -17,12 +17,13 @@
 // Dependencies: ["actor_ref", "mailbox", "actor_runtime", "supervision"]
 
 import { Effect, Ref } from "effect"
-import type { ActorBehavior, ActorConfig } from "./types.ts"
-import type { ActorId } from "./types.ts"
-import { ActorRef, ActorRefUtils } from "./ActorRef.ts"
-import { MailboxUtils } from "./Mailbox.ts"
-import type { ActorRuntime } from "./ActorRuntime.ts"
-import { SupervisorUtils } from "./Supervisor.ts"
+import type { ActorBehavior, ActorConfig } from "./types"
+import type { ActorId } from "./types"
+import { ActorRef, ActorRefUtils } from "./ActorRef"
+import { MailboxUtils } from "./Mailbox"
+import type { ActorRuntime } from "./ActorRuntime"
+import { SupervisorUtils } from "./Supervisor"
+import { ActorRuntimeUtils } from "./ActorRuntime"
 
 /**
  * Actor System - Central coordinator for actor lifecycle management
@@ -45,7 +46,7 @@ export class ActorSystem {
     initialState: S,
     behavior: ActorBehavior<S, M>,
     config: ActorConfig = {}
-  ): Effect.Effect<ActorRef<M>, Error, never> {
+  ): Effect.Effect<ActorRef<M>, never, never> {
     const self = this
     return Effect.gen(function* () {
       const actorId = ActorRefUtils.makeId(id)
@@ -54,7 +55,7 @@ export class ActorSystem {
       // Check if actor already exists
       const existingActors = yield* Ref.get(self.actorsRef)
       if (existingActors.has(actorId)) {
-        return yield* Effect.fail(new Error(`Actor ${id} already exists`))
+        throw new Error(`Actor ${id} already exists`)
       }
 
       // Create mailbox
@@ -98,7 +99,9 @@ export class ActorSystem {
       yield* runtime.start(initialState, behavior)
 
       return actorRef
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
@@ -117,7 +120,7 @@ export class ActorSystem {
   /**
    * Stop an actor by ID
    */
-  stop(id: string): Effect.Effect<void, Error, never> {
+  stop(id: string): Effect.Effect<void, never, never> {
     const self = this
     return Effect.gen(function* () {
       const actorId = ActorRefUtils.makeId(id)
@@ -139,7 +142,9 @@ export class ActorSystem {
           return supervisors
         })
       }
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
@@ -162,7 +167,7 @@ export class ActorSystem {
   /**
    * Shutdown the entire actor system
    */
-  shutdown(): Effect.Effect<void, Error, never> {
+  shutdown(): Effect.Effect<void, never, never> {
     const self = this
     return Effect.gen(function* () {
       const actors = yield* Ref.get(self.actorsRef)
@@ -177,13 +182,15 @@ export class ActorSystem {
       yield* Ref.set(self.supervisorsRef, new Map())
 
       yield* Effect.log(`Actor system ${self.name} shutdown complete`)
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 
   /**
    * Get system statistics
    */
-  getStats(): Effect.Effect<ActorSystemStats, Error, never> {
+  getStats(): Effect.Effect<ActorSystemStats, never, never> {
     const self = this
     return Effect.gen(function* () {
       const actors = yield* Ref.get(self.actorsRef)
