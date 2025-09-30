@@ -231,13 +231,15 @@ export const ActorSystemUtils = {
   /**
    * Create a new actor system
    */
-  make(name: string): Effect.Effect<ActorSystem, Error, never> {
+  make(name: string): Effect.Effect<ActorSystem, never, never> {
     return Effect.gen(function* () {
       const actorsRef = yield* Ref.make(new Map<ActorId, ActorRuntime<unknown, unknown>>())
       const supervisorsRef = yield* Ref.make(new Map<ActorId, any>())
 
       return new ActorSystem(name, actorsRef, supervisorsRef)
-    })
+    }).pipe(
+      Effect.orDie
+    )
   },
 
   /**

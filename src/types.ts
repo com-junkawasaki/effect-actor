@@ -66,6 +66,7 @@ export interface ActorConfig {
   readonly maxRestarts?: number
   readonly restartDelay?: number
   readonly supervisionStrategy?: SupervisionStrategy
+  readonly messageTimeout?: number // in milliseconds
 }
 
 /**

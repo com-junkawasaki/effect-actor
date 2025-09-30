@@ -76,19 +76,31 @@ export class ActorRuntime<S, M> {
           // Get current state
           const currentState = yield* Ref.get(self.stateRef)
 
-          // Process message with behavior
-          const newState = yield* behavior(currentState, envelope.message, context)
+          // Process message with behavior and timeout
+          const timeoutMs = self.config.messageTimeout ?? 30000 // Default 30 seconds
+
+          const processWithTimeout = Effect.gen(function* () {
+            return yield* behavior(currentState, envelope.message, context)
+          }).pipe(
+            Effect.timeout(timeoutMs),
+            Effect.catchTag("TimeoutException", () =>
+              Effect.fail(new Error(`Message processing timeout after ${timeoutMs}ms`))
+            )
+          )
+
+          const newState = yield* processWithTimeout
 
           // Update state
           yield* Ref.set(self.stateRef, newState)
         }).pipe(
           // Handle errors in message processing
           Effect.catchAll((error: Error) =>
-            Effect.gen(function* () {
+            Effect.gen(function* (): Effect.Effect<undefined, never, never> {
               yield* Ref.set(self.statusRef, ActorStatus.Failed)
+
               // TODO: Trigger supervision strategy
               console.error("Actor error:", error)
-              return undefined as never
+              return undefined
             })
           )
         )
@@ -169,7 +181,7 @@ export const ActorRuntimeUtils = {
     ref: ActorRef<M>,
     mailbox: Mailbox<M>,
     config: ActorConfig = {}
-  ): Effect.Effect<ActorRuntime<S, M>, Error, never> {
+  ): Effect.Effect<ActorRuntime<S, M>, never, never> {
     return Effect.gen(function* () {
       const statusRef = yield* Ref.make<typeof ActorStatus[keyof typeof ActorStatus]>(ActorStatus.Stopped)
       const stateRef = yield* Ref.make<S>(undefined as any) // Will be set on start
@@ -183,6 +195,8 @@ export const ActorRuntimeUtils = {
         stateRef,
         fiberRef
       )
-    })
+    }).pipe(
+      Effect.orDie
+    )
   }
 } as const
