@@ -247,8 +247,8 @@ const runChatRoomExample = Effect.gen(function* () {
   yield* chatRoom.tell(ChatMessages.getHistory())
 
   // Users leave
-  yield* charlie.tell(ChatMessages.leaveRoom("charlie"))
-  yield* bob.tell(ChatMessages.leaveRoom("bob"))
+  yield* chatRoom.tell(ChatMessages.leaveRoom("charlie"))
+  yield* chatRoom.tell(ChatMessages.leaveRoom("bob"))
 
   yield* Effect.sleep(100)
 

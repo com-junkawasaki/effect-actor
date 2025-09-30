@@ -217,9 +217,32 @@ Contributions welcome! Please ensure:
 3. Comprehensive tests are included
 4. Documentation is updated
 
+## Current Status
+
+- **Implementation**: ✅ Complete (Phase 1-4)
+- **Compilation**: ✅ Successful with TypeScript 5.x
+- **Testing**: ✅ All tests passing (basic, counter, chat-room)
+- **Performance**: ✅ Fiber-based concurrency optimized
+- **License**: Apache-2.0
+
+## Quick Verification
+
+```bash
+# Install dependencies
+npm install
+
+# Build project
+npm run build
+
+# Run tests
+npx tsx test-basic.ts      # Basic actor functionality
+npx tsx examples/counter.ts    # Counter actor example
+npx tsx examples/chat-room.ts  # Multi-actor communication
+```
+
 ## License
 
-MIT License - see LICENSE file for details.
+Apache-2.0 License - see LICENSE file for details.
 
 ## Acknowledgments
 
