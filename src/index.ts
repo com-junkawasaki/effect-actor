@@ -68,16 +68,5 @@ export { Supervisor, SupervisorTree, SupervisorUtils } from "./Supervisor"
 export { ActorSystem, ActorSystemUtils } from "./ActorSystem"
 export type { ActorSystemStats } from "./ActorSystem"
 
-// Metrics
-export {
-  MetricsRegistry,
-  MetricsRegistryUtils,
-  MetricsUtils
-} from "./Metrics"
-export type {
-  ActorSystemMetrics,
-  ActorMetrics
-} from "./Metrics"
-
 // Re-export Effect types commonly used with actors
 export type { Effect } from "effect"

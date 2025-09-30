@@ -151,8 +151,8 @@
       supervision_strategy: "exponential backoff with state restoration ✓",
       message_timeout: "configurable timeout (default 30s) ✓",
       error_recovery: "comprehensive failure handling ✓",
-      future_metrics: "foundation prepared ✓",
-      future_persistence: "architecture ready ✓"
+      future_metrics: "postponed (Effect v3 API complexity) 📅",
+      future_persistence: "postponed (focus on core reliability) 📅"
     },
 
     // Test Results

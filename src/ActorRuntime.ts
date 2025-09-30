@@ -27,8 +27,6 @@ import type { ActorBehavior, ActorConfig, ActorContext } from "./types"
 import { ActorStatus } from "./types"
 import type { ActorRef } from "./ActorRef"
 import type { Mailbox } from "./Mailbox"
-import type { ActorMetrics, ActorSystemMetrics } from "./Metrics"
-import { MetricsUtils } from "./Metrics"
 
 /**
  * Actor Runtime - Manages actor execution lifecycle
@@ -43,9 +41,7 @@ export class ActorRuntime<S, M> {
     readonly config: ActorConfig,
     private readonly statusRef: Ref.Ref<typeof ActorStatus[keyof typeof ActorStatus]>,
     private readonly stateRef: Ref.Ref<S>,
-    private readonly fiberRef: Ref.Ref<Fiber.Fiber<never, void> | null>,
-    private readonly systemMetrics: ActorSystemMetrics,
-    private readonly metrics?: ActorMetrics<M>
+    private readonly fiberRef: Ref.Ref<Fiber.Fiber<never, void> | null>
   ) {}
 
   /**
@@ -77,12 +73,6 @@ export class ActorRuntime<S, M> {
           // Take message from mailbox
           const envelope = yield* self.mailbox.take()
 
-          // Update mailbox size metric
-          if (self.metrics) {
-            const mailboxSize = yield* self.mailbox.size()
-            yield* MetricsUtils.updateMailboxSize(self.metrics, mailboxSize)
-          }
-
           // Get current state
           const currentState = yield* Ref.get(self.stateRef)
 
@@ -102,21 +92,11 @@ export class ActorRuntime<S, M> {
 
           // Update state
           yield* Ref.set(self.stateRef, newState)
-
-          // Record successful processing metrics
-          if (self.metrics) {
-            yield* MetricsUtils.recordMessageProcessed(self.systemMetrics, self.metrics)
-          }
         }).pipe(
           // Handle errors in message processing
           Effect.catchAll((error: Error) =>
             Effect.gen(function* () {
               yield* Ref.set(self.statusRef, ActorStatus.Failed)
-
-              // Record failure metrics
-              if (self.metrics) {
-                yield* MetricsUtils.recordMessageFailed(self.systemMetrics, self.metrics)
-              }
 
               // TODO: Trigger supervision strategy
               console.error("Actor error:", error)
@@ -200,9 +180,7 @@ export const ActorRuntimeUtils = {
   make<S, M>(
     ref: ActorRef<M>,
     mailbox: Mailbox<M>,
-    config: ActorConfig = {},
-    systemMetrics?: ActorSystemMetrics,
-    metrics?: ActorMetrics<M>
+    config: ActorConfig = {}
   ): Effect.Effect<ActorRuntime<S, M>, never, never> {
     return Effect.gen(function* () {
       const statusRef = yield* Ref.make<typeof ActorStatus[keyof typeof ActorStatus]>(ActorStatus.Stopped)
@@ -215,9 +193,7 @@ export const ActorRuntimeUtils = {
         config,
         statusRef,
         stateRef,
-        fiberRef,
-        systemMetrics,
-        metrics
+        fiberRef
       )
     }).pipe(
       Effect.orDie

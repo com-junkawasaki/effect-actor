@@ -30,8 +30,6 @@ import { MailboxUtils } from "./Mailbox"
 import type { ActorRuntime } from "./ActorRuntime"
 import { SupervisorUtils } from "./Supervisor"
 import { ActorRuntimeUtils } from "./ActorRuntime"
-import { MetricsRegistryUtils } from "./Metrics"
-import type { MetricsRegistry, ActorSystemMetrics } from "./Metrics"
 
 /**
  * Actor System - Central coordinator for actor lifecycle management
@@ -43,8 +41,7 @@ export class ActorSystem {
   constructor(
     readonly name: string,
     private readonly actorsRef: Ref.Ref<Map<ActorId, ActorRuntime<unknown, unknown>>>,
-    private readonly supervisorsRef: Ref.Ref<Map<ActorId, any>>, // Supervisor<any>
-    private readonly metricsRegistry: MetricsRegistry
+    private readonly supervisorsRef: Ref.Ref<Map<ActorId, any>> // Supervisor<any>
   ) {}
 
   /**
@@ -78,12 +75,8 @@ export class ActorSystem {
         (envelope) => mailbox.offer(envelope)
       )
 
-      // Get actor metrics
-      const actorMetrics = self.metricsRegistry.getActorMetrics(actorRef)
-      const systemMetrics = self.metricsRegistry.systemMetrics
-
       // Create runtime
-      const runtime = yield* ActorRuntimeUtils.make<S, M>(actorRef, mailbox, config, systemMetrics, actorMetrics)
+      const runtime = yield* ActorRuntimeUtils.make<S, M>(actorRef, mailbox, config)
 
       // Create supervisor
       const supervisor = yield* SupervisorUtils.make(
@@ -242,9 +235,8 @@ export const ActorSystemUtils = {
     return Effect.gen(function* () {
       const actorsRef = yield* Ref.make(new Map<ActorId, ActorRuntime<unknown, unknown>>())
       const supervisorsRef = yield* Ref.make(new Map<ActorId, any>())
-      const metricsRegistry = yield* MetricsRegistryUtils.make()
 
-      return new ActorSystem(name, actorsRef, supervisorsRef, metricsRegistry)
+      return new ActorSystem(name, actorsRef, supervisorsRef)
     }).pipe(
       Effect.orDie
     )
