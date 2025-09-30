@@ -1,5 +1,5 @@
 {
-  "name": "@gftdcojp/effect-actor",
+  "name": "effect-actor",
   "version": "3.0.0",
   "description": "Actor system implementation for Effect v3",
   "main": "dist/index.js",
