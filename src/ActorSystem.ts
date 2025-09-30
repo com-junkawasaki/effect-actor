@@ -81,6 +81,8 @@ export class ActorSystem {
       // Create supervisor
       const supervisor = yield* SupervisorUtils.make(
         actorRef,
+        initialState,
+        behavior,
         config.supervisionStrategy,
         config.maxRestarts ?? 3,
         config.restartDelay ?? 1000

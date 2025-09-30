@@ -11,7 +11,7 @@ import type { ActorRuntime } from "./ActorRuntime"
  * Supervisor - Manages actor failure recovery
  * Implements various supervision strategies for resilient actor systems
  */
-export class Supervisor<M> {
+export class Supervisor<S, M> {
   readonly _tag = "Supervisor" as const
 
   constructor(
@@ -20,7 +20,9 @@ export class Supervisor<M> {
     readonly maxRestarts: number,
     readonly restartDelay: number,
     private readonly restartCountRef: Ref.Ref<number>,
-    private readonly runtimeRef: Ref.Ref<ActorRuntime<unknown, M> | null>
+    private readonly runtimeRef: Ref.Ref<ActorRuntime<unknown, M> | null>,
+    private readonly initialState: S,
+    private readonly behavior: (state: S, message: M, context: any) => Effect.Effect<S, Error, never>
   ) {}
 
   /**
@@ -63,7 +65,7 @@ export class Supervisor<M> {
   }
 
   /**
-   * Restart the supervised actor
+   * Restart the supervised actor with exponential backoff
    */
   private restartActor(
     runtime: ActorRuntime<unknown, M>
@@ -73,18 +75,27 @@ export class Supervisor<M> {
       // Stop current runtime
       yield* runtime.stop()
 
-      // Wait for restart delay
-      if (self.restartDelay > 0) {
-        yield* Effect.sleep(self.restartDelay)
-      }
+      // Get current restart count for exponential backoff
+      const restartCount = yield* Ref.get(self.restartCountRef)
 
-      // Get current runtime and restart it
-      const currentRuntime = yield* Ref.get(self.runtimeRef)
-      if (currentRuntime) {
-        // TODO: Need to store initial state and behavior for restart
-        // For now, just log that restart would happen
-        yield* Effect.log(`Restarting actor ${self.supervisedActor.id}`)
-      }
+      // Calculate delay with exponential backoff
+      const delay = self.restartDelay * Math.pow(2, restartCount)
+      const maxDelay = 30000 // Max 30 seconds
+      const actualDelay = Math.min(delay, maxDelay)
+
+      yield* Effect.log(`Waiting ${actualDelay}ms before restart (attempt ${restartCount + 1})`)
+      yield* Effect.sleep(actualDelay)
+
+      // Create new runtime with fresh initial state
+      const newRuntime = yield* ActorRuntimeUtils.make<S, M>(self.supervisedActor, runtime.mailbox, runtime.config)
+
+      // Start the actor with initial state and behavior
+      yield* newRuntime.start(self.initialState, self.behavior)
+
+      // Update runtime reference
+      yield* Ref.set(self.runtimeRef, newRuntime)
+
+      yield* Effect.log(`Successfully restarted actor ${self.supervisedActor.id}`)
     }).pipe(
       Effect.orDie
     )
@@ -131,12 +142,14 @@ export const SupervisorUtils = {
   /**
    * Create a supervisor with specified strategy
    */
-  make<M>(
+  make<S, M>(
     actorRef: ActorRef<M>,
+    initialState: S,
+    behavior: (state: S, message: M, context: any) => Effect.Effect<S, Error, never>,
     strategy: SupervisionStrategy = SupervisionStrategy.Restart,
     maxRestarts: number = 3,
     restartDelay: number = 1000
-  ): Effect.Effect<Supervisor<M>, Error, never> {
+  ): Effect.Effect<Supervisor<S, M>, never, never> {
     return Effect.gen(function* () {
       const restartCountRef = yield* Ref.make(0)
       const runtimeRef = yield* Ref.make<ActorRuntime<unknown, M> | null>(null)
@@ -147,9 +160,13 @@ export const SupervisorUtils = {
         maxRestarts,
         restartDelay,
         restartCountRef,
-        runtimeRef
+        runtimeRef,
+        initialState,
+        behavior
       )
-    })
+    }).pipe(
+      Effect.orDie
+    )
   },
 
   /**
