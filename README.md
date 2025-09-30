@@ -1,4 +1,4 @@
-# Effect Actors v3
+# @gftdcojp/effect-actor
 
 A production-ready actor system implementation for [Effect v3](https://effect.website), designed with SOLID principles and Merkle DAG-based process network topology. **85% Production Ready** 🎯
 
@@ -28,11 +28,11 @@ This library provides a complete actor system built on Effect v3's powerful conc
 ## Installation
 
 ```bash
-npm install effect-actor effect
+npm install @gftdcojp/effect-actor effect
 # or
-yarn add effect-actor effect
+yarn add @gftdcojp/effect-actor effect
 # or
-pnpm add effect-actor effect
+pnpm add @gftdcojp/effect-actor effect
 ```
 
 ## Quick Start
@@ -43,7 +43,7 @@ import {
   ActorSystemUtils,
   type ActorBehavior,
   type Message
-} from "effect-actor"
+} from "@gftdcojp/effect-actor"
 
 // Define your messages
 interface Increment extends Message {
@@ -203,7 +203,7 @@ interface ActorConfig {
 
 This library is a complete rewrite for Effect v3. Key differences:
 
-| Aspect | @effect-ts/actors (v1) | effect-actor (v3) |
+| Aspect | @effect-ts/actors (v1) | @gftdcojp/effect-actor (v3) |
 |--------|------------------------|---------------------|
 | Effect Version | v1 (legacy) | v3 (current) |
 | API | Class-based | Functional |
@@ -230,7 +230,7 @@ Contributions welcome! Please ensure:
 - **Timeout**: ✅ Configurable message processing timeout
 - **Performance**: ✅ Fiber-based concurrency optimized
 - **Production Readiness**: 🟡 High (85% - Metrics/Persistence pending)
-- **License**: Apache-2.0
+- **License**: MIT
 
 ## Production Readiness Score
 
@@ -322,7 +322,7 @@ npx tsx examples/chat-room.ts  # Multi-actor with timeout
 
 ## License
 
-Apache-2.0 License - see LICENSE file for details.
+MIT License - see LICENSE file for details.
 
 ## Acknowledgments
 
