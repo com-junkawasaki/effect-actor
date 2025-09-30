@@ -95,12 +95,12 @@ export class ActorRuntime<S, M> {
         }).pipe(
           // Handle errors in message processing
           Effect.catchAll((error: Error) =>
-            Effect.gen(function* (): Effect.Effect<undefined, never, never> {
+            Effect.gen(function* () {
               yield* Ref.set(self.statusRef, ActorStatus.Failed)
 
               // TODO: Trigger supervision strategy
               console.error("Actor error:", error)
-              return undefined
+              return undefined as never
             })
           )
         )
