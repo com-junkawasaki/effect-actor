@@ -24,11 +24,11 @@ This library provides a complete actor system built on Effect v3's powerful conc
 ## Installation
 
 ```bash
-npm install @effect-ts/actors-v3 effect
+npm install effect-actor effect
 # or
-yarn add @effect-ts/actors-v3 effect
+yarn add effect-actor effect
 # or
-pnpm add @effect-ts/actors-v3 effect
+pnpm add effect-actor effect
 ```
 
 ## Quick Start
@@ -39,7 +39,7 @@ import {
   ActorSystemUtils,
   type ActorBehavior,
   type Message
-} from "@effect-ts/actors-v3"
+} from "effect-actor"
 
 // Define your messages
 interface Increment extends Message {
@@ -199,7 +199,7 @@ interface ActorConfig {
 
 This library is a complete rewrite for Effect v3. Key differences:
 
-| Aspect | @effect-ts/actors (v1) | @effect-ts/actors-v3 |
+| Aspect | @effect-ts/actors (v1) | effect-actor (v3) |
 |--------|------------------------|---------------------|
 | Effect Version | v1 (legacy) | v3 (current) |
 | API | Class-based | Functional |
